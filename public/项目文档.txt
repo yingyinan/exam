@@ -1,0 +1,28 @@
+day01  
+    1.完成选项栏
+        获取所有题目类型
+            getAllSubjectType
+        获取所有难易程度
+            getAllSubjectLevel
+        获取所有方向
+            getAllDepartmentes
+        获取所有知识点
+            getAllTopics
+    
+day02
+    1.点击选项栏，显示题目
+        getAllSubjects
+    2.审核通过/不通过
+        checkSubject
+    3.显示审核状态
+        getCheckState
+
+day03
+    1.显示选择题的选项
+        getChoice
+    2.添加“加入试卷”的按钮
+        添加在check()里
+
+day04
+    1.点击显示答案和解析
+    2.

@@ -1,0 +1,235 @@
+    <div class="editingarea">
+        <div class="c_flex"><span class="c_flexible"></span></div>
+        <div class="c_editview">
+            <div class="c_condition">
+                <span><select><option>题干</option></select></span>
+                <span class="pl5 " ><input type="text"></span>
+                <span class="pl15 pr15 btn_gray ">查找</span>
+                <span class="icon_lead-in"><em class="icon_r">批量导入题目</em></span>
+                <span class="icon_add"><em class="icon_r">单个添加题目</em></span>
+            </div>
+            <div class="divtable">
+                <table width="100%" border="0" cellspacing="0" cellpadding="0" class="tablea">
+                    <tr hidden>
+                        <td align="center"></td>
+                        <td align="left">
+                            <div class="chose">
+                                
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="Catalog">
+                <div class="Catalog_right">
+                    <div class="Catalogtitle">
+                        总计<em>15552</em>道题&nbsp;&nbsp;提示：单击体面可显示答案和解析&nbsp;&nbsp;
+                        <input type="checkbox" />
+                        <b>显示答案和解析</b>&nbsp;&nbsp;
+                        <a href="#" class="Thispage">本页全部试题加入试卷</a>
+                        <div>
+                            <i>1</i>
+                        <a href="#" class="pageone">前</a>
+                        <a href="#" class="pagetwo">后</a>
+                        </div>
+                    </div>
+
+                    <div class="Catalog_rightnei" hidden>
+                        <div class="Catalogtitwo">
+                            题号：25544&nbsp;&nbsp;
+                            题型：还是得&nbsp;&nbsp;
+                            难度：订餐&nbsp;&nbsp;
+                            上传人：女性司机&nbsp;&nbsp;
+                            来源：才能使得&nbsp;&nbsp;
+                            上传时间:220255&nbsp;&nbsp;
+                            组卷次数：<em>0</em>
+                        </div>
+                        <div class="Catalogcontent">
+                            <div class="Catalogcontentup">题型</div>
+                            <div class="Catalogcontentdown">
+                                <a href="javascript:void(0)">审核通过</a>
+                                <a href="javascript:void(0)">审核不通过</a>
+                                <a href="javascript:void(0)">删除题目</a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="clear"></div>
+            </div>
+        </div>
+    </div>
+<script>
+    $(function(){
+        //函数choose()：展示类型，难易程度，方向，知识点选择栏
+        function choose(url,html,n,nn){
+            $.getJSON(url,function(data){
+                var newTr=$(".tablea tr:hidden").clone();            
+                newTr.removeAttr("hidden");            
+                newTr.children("td").eq(0).html(html);
+                data.forEach(function(item,index) {
+                    var con="";
+                    if(index==0){
+                        con=$("<a href='javascript:void(0)' class='active3' name='"+eval("item."+nn)+"' id='"+item.id+"'>"+eval("item."+n)+"</a>");
+                    }else{
+                        con=$("<a href='javascript:void(0)' name='"+eval("item."+nn)+"' id='"+item.id+"'>"+eval("item."+n)+"</a>")
+                    }
+                    newTr.find(".chose").append(con);
+                });
+                $(".tablea").append(newTr);
+            });
+        }
+        //执行函数choose()
+        choose("exam/manager/getAllSubjectType","类型","realName","name");
+        choose("exam/manager/getAllSubjectLevel","难易程度","realName","name");
+        choose("exam/manager/getAllDepartmentes","方向","name","name");
+        choose("exam/manager/getAllTopics","知识点","title","title");
+
+
+        //函数showDate(data)：点击类型，难易程度，方向，知识点时，展示题目
+        function showData(data){
+            //显示题目
+            // $(".Catalogtitle").find("em").html(data.length);
+            $(".Catalog_rightnei:not(:hidden)").remove();
+            data.forEach(function(item,index){
+                // console.log(item);
+                var newTr=$(".Catalog_rightnei:hidden").clone();
+                newTr.removeAttr("hidden");
+                $(".Catalog_right").append(newTr);
+
+                // newTr.find(".Catalogtitwo").html("题号:"+item.id+"&nbsp;&nbsp;题型:"+item.subjectType.realName+"&nbsp;&nbsp;难度:"+item.subjectLevel.realName+"&nbsp;&nbsp;上传人:香蕉杀手&nbsp;&nbsp;来源:小黄人集中营&nbsp;&nbsp;上传时间:"+item.uploadTime+"&nbsp;&nbsp;组卷次数:<em>0</em>");
+
+                var stemOne=$("<p id='"+item.id+"'>"+item.stem+"</p>");
+                newTr.find(".Catalogcontentup").append(stemOne);
+                var checkInfo=$("<span>状态:"+item.checkState+"</span>").css({"background-color":"#fff","color":"red"});
+                // console.log(item.checkState);
+                // console.log(checkInfo);
+                newTr.find(".Catalogcontentdown").prepend(checkInfo);
+                 
+
+            });
+        }
+        
+        //函数showChoice():显示选择题选项
+        function showChoice(){
+                //显示选择题选项
+            $.ajax("exam/manager/getChoice",{
+                method:"POST",
+                data:{
+                    "subjectId":$(".Catalogcontentup p").attr("id")
+                },
+                success:function(data){
+                    $(".Catalogcontentup div").remove();                    
+                    data.forEach(function(item,index){
+                        if(item.correct.data[0]==1){
+                            var chose=$("<div id='"+item.subject_id+"'>"+String.fromCharCode(index+65)+".&nbsp;&nbsp;"+item.content+"</div>").css("color","red");
+                            $(".Catalogcontentup").append(chose);
+                        }else{
+                            var chose=$("<div id='"+item.subject_id+"'>"+String.fromCharCode(index+65)+".&nbsp;&nbsp;"+item.content+"</div>");
+                            $(".Catalogcontentup").append(chose);
+                        }
+
+                    })
+                }
+            })
+        }
+        //函数check()：审核
+        function check(){
+            $(".Catalogcontentdown").on("click","a",function(){
+                $(this).attr("style","background-color:#ccc").siblings("a").attr("style","background-color:rgb(0, 180, 255)");
+                switch($(this).html()){
+                    case "审核通过":
+                        $.ajax("exam/manager/checkSubject",{
+                            method:'POST',
+                            data:{
+                                "subjectId":$(this).parent().prev().children().attr("id"),
+                                "subjectCheckState":"通过"
+                            },
+                            success:null
+                        })
+                        var add=$(".Catalogcontentdown a:first-child").clone().html("加入试卷");
+                        $(".Catalogcontentdown").append(add);
+                        $(".Catalogcontentdown a:even").attr("style","display:none");
+                    break;
+                    case "审核不通过":
+                        $.ajax("exam/manager/checkSubject",{
+                            method:'POST',
+                            data:{
+                                "subjectId":$(this).parent().prev().children().attr("id"),
+                                "subjectCheckState":"不通过"
+                            },
+                            success:null
+                        })
+                        $(".Catalogcontentdown a:last-child").attr("style","display:none");
+                    break;
+                    case "删除":
+                        $.post("exam/manager/delSubject",{
+                            "subjectId":$(this).attr("id")    
+                        })
+                }
+                    //通过/不通过状态更新
+                $.ajax("exam/manager/getCheckState",{
+                    method:"POST",
+                    data:{
+                        "subjectId":$(this).parent().prev().children().attr("id")
+                    },
+                    success:function(data){
+                        data.forEach(function(item,index){
+                            var checkInfo2=$("<span>审核状态:"+item.checkState+"</span>").css({"background-color":"#fff","color":"red"});
+                            this.$(".Catalogcontentdown span").remove();
+                            this.$(".Catalogcontentdown").prepend(checkInfo2);
+                        })
+                    }
+                });
+
+            });
+        }
+
+        //点击选择栏--->出现题目/出现选项/审核
+        $(".tablea").on("click","a",function(){
+            $(this).addClass("active3").siblings().removeClass("active3");
+
+            var arr = $('.tablea tbody tr td div a.active3').get();
+            var typeId='';
+            var levelId='';
+            var departmentId='';
+            var topicId='';
+            arr.forEach(function(item,index,arr){
+                var atd = $(item).parent().parent().parent().children().eq(0).html();
+                switch(atd){
+                    case '类型':typeId=$(item).attr("id");
+                        break;
+                    case '难易程度':levelId=$(item).attr("id");
+                        break;
+                    case '方向':departmentId=$(item).attr("id");
+                        break;
+                    case '知识点':topicId=$(item).attr("id");
+                        break;
+                }
+            })
+            console.log(typeId,levelId,departmentId,topicId);
+            $.ajax("exam/manager/getAllSubjects",{
+				method:"POST",
+				data:{
+					"typeId":typeId,
+					"levelId":levelId,
+					"departmentId":departmentId,
+					"topicId":topicId,
+				},
+				success:function(data){
+                    showData(data);
+                    showChoice();
+                    check();
+				}
+					
+            });
+            
+		
+        });
+    
+
+        
+
+    })
+</script>
+
