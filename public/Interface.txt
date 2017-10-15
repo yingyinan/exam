@@ -108,10 +108,10 @@ plusYU521
 		subject.subjectType.id			2
 	 	subject.subjectLevel.id			3
 	 	subject.department.id			1
-	 	subject.topic.id			1
-	 	subject.stem				""
-	 	subject.answer				""
-	 	subject.analysis			""
+	 	subject.topic.id				1
+	 	subject.stem					""
+	 	subject.answer					""
+	 	subject.analysis				""
 	 	
 	 	choiceContent:	["choice1","choice2","choice3"]
 	 	choiceCorrect:	[true,true,false]

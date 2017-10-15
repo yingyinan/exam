@@ -11,7 +11,9 @@
             <div class="divtable">
                 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="tablea">
                     <tr hidden>
+                        <!--小标题  -->
                         <td align="center"></td>
+                        <!--选项  -->
                         <td align="left">
                             <div class="chose">
                                 
@@ -46,10 +48,13 @@
                         </div>
                         <div class="Catalogcontent">
                             <div class="Catalogcontentup">题型</div>
+                            <!--显示答案与解析  -->
+                            <div class="Catalogcontentcenter" hidden></div>
                             <div class="Catalogcontentdown">
                                 <a href="javascript:void(0)">审核通过</a>
                                 <a href="javascript:void(0)">审核不通过</a>
                                 <a href="javascript:void(0)">删除题目</a>
+                                <a href="javascript:void(0)" style="display:none">加入试卷</a>
                             </div>
                         </div>
                     </div>
@@ -59,20 +64,25 @@
             </div>
         </div>
     </div>
+    
 <script>
     $(function(){
+        //点击单个添加按钮，跳转到添加界面
+        $(".icon_add").click(function(){
+            $(".editingarea").hide();
+            $(".right").load("load/addSubject.html");
+        });
         //函数choose()：展示类型，难易程度，方向，知识点选择栏
-        function choose(url,html,n,nn){
+        function choose(url,tit,n,nn){
             $.getJSON(url,function(data){
                 var newTr=$(".tablea tr:hidden").clone();            
                 newTr.removeAttr("hidden");            
-                newTr.children("td").eq(0).html(html);
+                newTr.children("td").eq(0).html(tit);
                 data.forEach(function(item,index) {
-                    var con="";
                     if(index==0){
-                        con=$("<a href='javascript:void(0)' class='active3' name='"+eval("item."+nn)+"' id='"+item.id+"'>"+eval("item."+n)+"</a>");
+                        var con=$("<a href='javascript:void(0)' class='active3' name='"+eval("item."+nn)+"' id='"+item.id+"'>"+eval("item."+n)+"</a>");
                     }else{
-                        con=$("<a href='javascript:void(0)' name='"+eval("item."+nn)+"' id='"+item.id+"'>"+eval("item."+n)+"</a>")
+                        var con=$("<a href='javascript:void(0)' name='"+eval("item."+nn)+"' id='"+item.id+"'>"+eval("item."+n)+"</a>")
                     }
                     newTr.find(".chose").append(con);
                 });
@@ -99,11 +109,23 @@
 
                 // newTr.find(".Catalogtitwo").html("题号:"+item.id+"&nbsp;&nbsp;题型:"+item.subjectType.realName+"&nbsp;&nbsp;难度:"+item.subjectLevel.realName+"&nbsp;&nbsp;上传人:香蕉杀手&nbsp;&nbsp;来源:小黄人集中营&nbsp;&nbsp;上传时间:"+item.uploadTime+"&nbsp;&nbsp;组卷次数:<em>0</em>");
 
+                //拿到题干
                 var stemOne=$("<p id='"+item.id+"'>"+item.stem+"</p>");
                 newTr.find(".Catalogcontentup").append(stemOne);
-                var checkInfo=$("<span>状态:"+item.checkState+"</span>").css({"background-color":"#fff","color":"red"});
-                // console.log(item.checkState);
-                // console.log(checkInfo);
+
+                //拿到到答案与解析
+                if(item.subjectType_id==3){
+                    var ans=$("<p id='"+item.id+"'>答案:"+item.answer+"</p>");
+                    newTr.find(".Catalogcontentcenter").append(ans);
+                    var ana=$("<p id='"+item.id+"'>解析:"+item.analysis+"</p>");
+                    newTr.find(".Catalogcontentcenter").append(ana);
+                }else{
+                    var ana=$("<p id='"+item.id+"'>解析:"+item.analysis+"</p>");
+                    newTr.find(".Catalogcontentcenter").append(ana);
+                }
+                
+                //初始审查状态
+                var checkInfo=$("<span id='"+item.id+"'>审查状态:"+item.checkState+"</span>").css({"background-color":"#fff","color":"red"});
                 newTr.find(".Catalogcontentdown").prepend(checkInfo);
                  
 
@@ -122,10 +144,10 @@
                     $(".Catalogcontentup div").remove();                    
                     data.forEach(function(item,index){
                         if(item.correct.data[0]==1){
-                            var chose=$("<div id='"+item.subject_id+"'>"+String.fromCharCode(index+65)+".&nbsp;&nbsp;"+item.content+"</div>").css("color","red");
+                            var chose=$("<div id='"+item.subject_id+"' class='choice-true'>"+String.fromCharCode(index+65)+".&nbsp;&nbsp;"+item.content+"</div>");
                             $(".Catalogcontentup").append(chose);
                         }else{
-                            var chose=$("<div id='"+item.subject_id+"'>"+String.fromCharCode(index+65)+".&nbsp;&nbsp;"+item.content+"</div>");
+                            var chose=$("<div id='"+item.subject_id+"' class='choice'>"+String.fromCharCode(index+65)+".&nbsp;&nbsp;"+item.content+"</div>");
                             $(".Catalogcontentup").append(chose);
                         }
 
@@ -136,6 +158,7 @@
         //函数check()：审核
         function check(){
             $(".Catalogcontentdown").on("click","a",function(){
+                console.log("this------",this);
                 $(this).attr("style","background-color:#ccc").siblings("a").attr("style","background-color:rgb(0, 180, 255)");
                 switch($(this).html()){
                     case "审核通过":
@@ -147,9 +170,10 @@
                             },
                             success:null
                         })
-                        var add=$(".Catalogcontentdown a:first-child").clone().html("加入试卷");
-                        $(".Catalogcontentdown").append(add);
-                        $(".Catalogcontentdown a:even").attr("style","display:none");
+                        // var add=$(".Catalogcontentdown a:first-child").clone().html("加入试卷");
+                        $(this).parent().children(":last-child").show();
+                        $(this).parent().children().eq(1).attr("style","display:none");
+                        $(this).parent().children().eq(3).attr("style","display:none");
                     break;
                     case "审核不通过":
                         $.ajax("exam/manager/checkSubject",{
@@ -160,7 +184,7 @@
                             },
                             success:null
                         })
-                        $(".Catalogcontentdown a:last-child").attr("style","display:none");
+                        $(this).parent().children(":last-child").attr("style","display:none");
                     break;
                     case "删除":
                         $.post("exam/manager/delSubject",{
@@ -174,11 +198,21 @@
                         "subjectId":$(this).parent().prev().children().attr("id")
                     },
                     success:function(data){
-                        data.forEach(function(item,index){
-                            var checkInfo2=$("<span>审核状态:"+item.checkState+"</span>").css({"background-color":"#fff","color":"red"});
-                            this.$(".Catalogcontentdown span").remove();
-                            this.$(".Catalogcontentdown").prepend(checkInfo2);
-                        })
+                            data.forEach(function(item,index){
+                                var checkInfo2=$("<span id='"+item.id+"'>审核状态:"+item.checkState+"</span>").css({"background-color":"#fff","color":"red"});
+                                    // console.log("span的id",checkInfo2.attr("id"));
+                                    // var kk="'.Catalogcontentdown span#"+checkInfo2.attr('id')+"'";
+                                    // $(kk).remove();                                 
+                                    // $(kk).parent().prepend(checkInfo2); 
+                                    // console.log($(".Catalogcontentdown span"));
+                                    // var oo=$(".Catalogcontentdown span").eq(0).attr("id");
+                                    // console.log(oo);
+                                    // $(".Catalogcontentdown span#1").parent().prepend(checkInfo2);
+                                    //如何去对应id更新                                 
+                                    $(".Catalogcontentdown span").remove();
+                                    $(".Catalogcontentdown").prepend(checkInfo2);                  
+                            })
+                            
                     }
                 });
 
@@ -190,12 +224,19 @@
             $(this).addClass("active3").siblings().removeClass("active3");
 
             var arr = $('.tablea tbody tr td div a.active3').get();
+            // console.log("arr",arr);//Array [ <a#3.active3>, <a#1.active3>, <a#1.active3>, <a#1.active3> ]
             var typeId='';
             var levelId='';
             var departmentId='';
             var topicId='';
-            arr.forEach(function(item,index,arr){
+            arr.forEach(function(item,index){
+                console.log(item);
                 var atd = $(item).parent().parent().parent().children().eq(0).html();
+                // console.log("atd",atd);//
+                // atd 类型
+                // atd 难易程度
+                // atd 方向
+                // atd 知识点
                 switch(atd){
                     case '类型':typeId=$(item).attr("id");
                         break;
@@ -207,7 +248,8 @@
                         break;
                 }
             })
-            console.log(typeId,levelId,departmentId,topicId);
+            console.log(typeId,levelId,departmentId,topicId);//如3 1 1 1
+            
             $.ajax("exam/manager/getAllSubjects",{
 				method:"POST",
 				data:{
@@ -223,11 +265,23 @@
 				}
 					
             });
-            
 		
         });
-    
 
+        //点击显示答案和解析
+        //单选，复选题 显示正确答案和解析
+        //简答题 显示答案和解析
+        $(".Catalogtitle").on("click","input",function(){
+            if(this.checked){
+                $(".Catalogcontentcenter").show();  
+                $(".Catalogcontentup .choice-true").css("color","red");
+            }else{
+                $(".Catalogcontentcenter").hide(); 
+                $(".Catalogcontentup .choice-true").css("color","black");                                               
+            }
+        });
+        
+        
         
 
     })

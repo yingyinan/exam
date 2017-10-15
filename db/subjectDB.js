@@ -36,6 +36,13 @@ module.exports={
     getChoice(subjectId){
         var sql="select * from tbl_exam_choice where subject_id="+subjectId;
         return pool.execute(sql);
+    },
+    saveSubject(analysis,answer,stem,department_id,subjectLevel_id,subjectType_id,topic_id){
+        var sql="insert into tbl_exam_subject(analysis,answer,checkState,stem,department_id,subjectLevel_id,subjectType_id,topic_id)values('"
+        +analysis+"','"+answer+"','未审核','"
+        +stem+"',"+department_id+","
+        +subjectLevel_id+","+subjectType_id+","+topic_id+")";
+        return pool.execute(sql);
     }
 
 }

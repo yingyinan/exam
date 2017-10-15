@@ -71,6 +71,21 @@ route.post("/getChoice",(req,resp)=>{
         resp.send(error);
     });
 });
+route.post("/saveSubject",(req,resp)=>{
+    var analysis=req.body.analysis;
+    var answer=req.body.answer;
+    var stem=req.body.stem;
+    var department_id=req.body.department_id;
+    var subjectLevel_id=req.body.subjectLevel_id;
+    var subjectType_id=req.body.subjectType_id;
+    var topic_id=req.body.topic_id;
+    console.log(analysis,answer,stem,department_id,subjectLevel_id,subjectType_id,topic_id);
+    subjectDB.saveSubject(analysis,answer,stem,department_id,subjectLevel_id,subjectType_id,topic_id).then((data)=>{
+        resp.send(data);
+    }).catch((error)=>{
+        resp.send(error);
+    });
+});
 
 
 module.exports=route;
