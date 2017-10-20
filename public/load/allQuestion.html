@@ -191,6 +191,8 @@
                             "subjectId":$(this).attr("id")    
                         })
                 }
+                var vm=this;
+                
                     //通过/不通过状态更新
                 $.ajax("exam/manager/getCheckState",{
                     method:"POST",
@@ -200,17 +202,9 @@
                     success:function(data){
                             data.forEach(function(item,index){
                                 var checkInfo2=$("<span id='"+item.id+"'>审核状态:"+item.checkState+"</span>").css({"background-color":"#fff","color":"red"});
-                                    // console.log("span的id",checkInfo2.attr("id"));
-                                    // var kk="'.Catalogcontentdown span#"+checkInfo2.attr('id')+"'";
-                                    // $(kk).remove();                                 
-                                    // $(kk).parent().prepend(checkInfo2); 
-                                    // console.log($(".Catalogcontentdown span"));
-                                    // var oo=$(".Catalogcontentdown span").eq(0).attr("id");
-                                    // console.log(oo);
-                                    // $(".Catalogcontentdown span#1").parent().prepend(checkInfo2);
-                                    //如何去对应id更新                                 
-                                    $(".Catalogcontentdown span").remove();
-                                    $(".Catalogcontentdown").prepend(checkInfo2);                  
+                             
+                                    $(vm).parent().children().eq(0).remove();
+                                    $(vm).parent().prepend(checkInfo2);                  
                             })
                             
                     }
